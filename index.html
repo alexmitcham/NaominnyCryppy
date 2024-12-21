@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptic Puzzle Clone</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sansita:ital,wght@0,100;0,900;1,900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #d5e8ff;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .logo {
+            margin-bottom: 20px;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .password-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .password-container input {
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #000;
+            border-radius: 5px;
+        }
+        .password-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: 3px solid #000;
+            border-radius: 50px;
+            background-color: #F5D1FD;
+            cursor: pointer;
+        }
+        .clue {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .clue .definition {
+            border-radius: 5px;
+            padding: 0 5px;
+            background-color: transparent;
+            transition: background-color 0.3s;
+        }
+        .definition.hint {
+            background-color: #d5e8ff;
+        }
+        .answer-box {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+		.letter-box {
+			width: 40px;
+			height: 40px;
+			border: 4px solid #000;
+			text-align: center;
+			font-size: 33px;
+			font-weight: bold;
+			line-height: 40px;
+			border-radius: 5px;
+			background-color: #fff; /* Default */
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			text-transform: uppercase;
+		}
+
+		.letter-box.filled {
+			font-family: "Sansita", serif; /* Matches the font styling */
+			font-weight: 1000;
+			font-style: italic;
+		}
+
+		.letter-box.highlight {
+			background-color: #fff2b1; /* Preserve the highlight colour for revealed letters */
+		}
+        .letter-box.active {
+            background-color: #f5d1fd;
+        }
+        .buttons {
+            margin-bottom: 20px;
+        }
+        .buttons button {
+            margin: 0 10px;
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 3px solid #000;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+        .buttons button:nth-child(2) {
+            background-color: #fff2b1;
+        }
+        .buttons button:nth-child(3) {
+            background-color: #f5d1fd;
+        }
+        .par-scale {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .scale {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .circle {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #000;
+            border-radius: 50%;
+            background-color: #fff;
+        }
+        .circle.filled {
+            background-color: #fff2b1;
+        }
+        .circle.hint {
+            background-color: #d5e8ff;
+        }
+        .par-label {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #000;
+            font-family: Arial, sans-serif;
+        }
+        .message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #fff2b1;
+            border: 1px solid #000;
+            border-radius: 5px;
+            padding: 10px 20px;
+            display: none;
+        }
+        .message.active {
+            display: block;
+        }
+        .message .close {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <img src="logo.png" alt="Logo" class="logo" width="200">
+    <div class="container">
+        <div class="password-container" id="startPage">
+            <input type="password" id="passwordInput" placeholder="Enter Password">
+            <button onclick="checkPassword()">Start</button>
+        </div>
+        <div id="puzzleContainer" style="display: none;">
+            <div class="clue"><span class="definition">A close friend</span>dealt a soft 12 with half credit (6)</div>
+            <div class="answer-box" id="answerBox">
+                <!-- Boxes for letters will be generated dynamically -->
+            </div>
+            <div class="buttons">
+                <button onclick="showHint()">Show Hint</button>
+                <button onclick="showRandomLetter()">Show Letter</button>
+                <button onclick="checkAnswer()">Check It</button>
+            </div>
+            <div class="par-scale">
+                <div class="scale" id="parScale">
+                    <!-- Circles will be dynamically generated -->
+                </div>
+                <div class="par-label">Par: 3</div>
+            </div>
+            <div class="message" id="messageBox">
+                <span id="messageText"></span>
+                <span class="close" onclick="closeMessage()">&times;</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const password = "notjust";
+        const puzzles = [
+            {
+                clueText: "dealt a soft 12 with half credit",
+                definition: "A close friend",
+                answer: "AADIT",
+                par: 3,
+                definitionFirst: true
+            },
+            {
+                clueText: "North French friend has an orgasm",
+                definition: "Perfect",
+                answer: "NAOMI",
+                par: 4,
+                definitionFirst: true
+            },
+            {
+                clueText: "Starting to see only New York",
+                definition: "work",
+                answer: "SONY",
+                par: 2,
+                definitionFirst: false
+            },
+			{
+				clueText: "Brief with messy older",
+				definition: "game",
+				answer: "WORDLE",
+				par: 3,
+				definitionFirst: false
+			},
+			{
+				clueText: "from a drunken dame",
+				definition: "Drink",
+				answer: "MEAD",
+				par: 2,
+				definitionFirst: true
+			},
+			{
+				clueText: "A twisted genius eats north and finishes with a south",
+				definition: "drink",
+				answer: "GUINNESS",
+				par: 3,
+				definitionFirst: false
+			},
+			{
+				clueText: "Apples urinate",
+				definition: "fruity frothy delicious liquid that Alex loves",
+				answer: "ALES",
+				par: 2,
+				definitionFirst: false
+			}
+        ];
+
+        let currentClueIndex = 0;
+        let parProgress = 0;
+        let hintUsed = false;
+		let gameActive = false; // Flag to track whether the game is active
+		let gameStarted = false; // Flag to track if the game has started
+
+
+
+        const answerBox = document.getElementById('answerBox');
+        const parScale = document.getElementById('parScale');
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+        const startPage = document.getElementById('startPage');
+        const puzzleContainer = document.getElementById('puzzleContainer');
+
+
+		let keyListenerActive = false; // Global flag to control key listener
+
+		document.addEventListener('keydown', (event) => {
+			if (!keyListenerActive) return; // Ignore events if key listener is inactive
+
+			const key = event.key.toLowerCase();
+			if (/^[a-z]$/.test(key)) {
+				handleKeyPress(key);
+			} else if (event.key === 'Backspace') {
+				handleBackspace();
+			} else if (event.key === 'Enter') {
+				checkAnswer();
+			}
+		});
+
+		function checkPassword() {
+			const enteredPassword = document.getElementById('passwordInput').value.trim();
+			console.log("Entered Password:", enteredPassword); // Debug entered password
+			if (enteredPassword === password) {
+				console.log("Password Correct, transitioning to puzzle...");
+				startPage.style.display = 'none';
+				puzzleContainer.style.display = 'block';
+				document.activeElement.blur(); // Remove focus from the password input
+				initializeGame(); // Initialize the first puzzle
+				gameStarted = true; // Mark the game as started
+				console.log("Game has started.");
+			} else {
+				console.log("Incorrect password.");
+				alert("Incorrect password. Try again.");
+			}
+		}
+
+
+		// Add an event listener for the Enter key
+		document.getElementById('passwordInput').addEventListener('keydown', (event) => {
+			if (event.key === 'Enter') {
+				event.preventDefault(); // Prevent default Enter behavior
+				event.stopPropagation(); // Stop the event from reaching the document-level listener
+				checkPassword();
+			}
+		});
+
+
+
+        // Initialize game
+		function initializeGame() {
+			console.log("Initializing game for puzzle:", currentClueIndex);
+
+			const currentClue = puzzles[currentClueIndex];
+			console.log("Current Puzzle Data:", currentClue);
+
+			// Set clue text
+			const clueElement = document.querySelector('.clue');
+			if (currentClue.definitionFirst) {
+				clueElement.innerHTML = `<span class="definition">${currentClue.definition}</span>${currentClue.clueText} (${currentClue.answer.length})`;
+			} else {
+				clueElement.innerHTML = `${currentClue.clueText}<span class="definition">${currentClue.definition}</span> (${currentClue.answer.length})`;
+			}
+
+			// Generate letter boxes
+			answerBox.innerHTML = ''; // Clear previous boxes
+			for (let i = 0; i < currentClue.answer.length; i++) {
+				const box = document.createElement('div');
+				box.classList.add('letter-box');
+				if (i === 0) box.classList.add('active');
+				box.setAttribute('data-index', i);
+				box.textContent = ''; // Clear text content
+				answerBox.appendChild(box);
+			}
+
+			console.log("Letter boxes initialized.");
+
+			// Generate par circles
+			parScale.innerHTML = ''; // Clear previous circles
+			const numCircles = currentClue.answer.length + 1; // Length of the answer + 1
+			for (let i = 0; i < numCircles; i++) {
+				const circle = document.createElement('div');
+				circle.classList.add('circle');
+				parScale.appendChild(circle);
+			}
+
+			console.log(`Par circles initialized: ${numCircles} circles.`);
+
+			// Update the par label
+			const parLabel = document.querySelector('.par-label');
+			parLabel.textContent = `Par: ${currentClue.par}`;
+			console.log(`Par label updated to: par: ${currentClue.par}`);
+
+			// Reset state
+			parProgress = 0;
+			hintUsed = false;
+			messageBox.classList.remove('active'); // Hide message box
+			console.log("Game initialization complete.");
+		}
+	
+		function loadNextPuzzle() {
+			console.log("Loading Next Puzzle...");
+			console.log("Current Clue Index before increment:", currentClueIndex);
+
+			currentClueIndex++;
+			if (currentClueIndex < puzzles.length) {
+				console.log("Moving to Puzzle Index:", currentClueIndex);
+				initializeGame(); // Reinitialize the game for the next puzzle
+			} else {
+				console.log("No more puzzles. Game Over.");
+				showMessage("Sorry :( that's all for now! Come back on your birthday for more xx");
+			}
+		}
+
+		function showMessage(text) {
+			messageBox.innerHTML = `<span id="messageText">${text}</span>`;
+			messageBox.classList.add('active'); // Show the message box
+		}
+
+
+        function closeMessage() {
+            messageBox.classList.remove('active');
+        }
+		function handleKeyPress(letter) {
+			const activeBox = document.querySelector('.letter-box.active');
+			if (activeBox) {
+				activeBox.textContent = letter;
+				activeBox.classList.remove('active');
+				activeBox.classList.add('filled');
+				console.log(`Filled letter: ${letter} at index ${activeBox.getAttribute('data-index')}`);
+				activateNextBox();
+			}
+		}
+
+
+		function handleBackspace() {
+			const filledBoxes = [...document.querySelectorAll('.letter-box.filled:not(.revealed)')];
+			if (filledBoxes.length > 0) {
+				const lastFilledBox = filledBoxes[filledBoxes.length - 1];
+				console.log(`Clearing letter at index ${lastFilledBox.getAttribute('data-index')}`);
+				lastFilledBox.textContent = ''; // Clear the text
+				lastFilledBox.classList.remove('filled');
+				lastFilledBox.classList.add('active');
+
+				// Ensure only one active box is highlighted at a time
+				const otherActiveBox = document.querySelector('.letter-box.active:not([data-index="' + lastFilledBox.getAttribute('data-index') + '"])');
+				if (otherActiveBox) {
+					otherActiveBox.classList.remove('active');
+				}
+			}
+		}
+
+
+        function activateNextBox() {
+            const nextBox = document.querySelector('.letter-box:not(.highlight):not(.filled)');
+            if (nextBox) {
+                nextBox.classList.add('active');
+            }
+        }
+
+
+        function showHint() {
+            if (!hintUsed) {
+                const definition = document.querySelector('.definition');
+                definition.classList.add('hint');
+                updateParScale('hint');
+                hintUsed = true;
+            }
+        }
+		function showRandomLetter() {
+			const emptyBoxes = [...document.querySelectorAll('.letter-box')].filter(
+				box => !box.textContent.trim()
+			);
+			if (emptyBoxes.length > 0) {
+				const randomBox = emptyBoxes[Math.floor(Math.random() * emptyBoxes.length)];
+				const index = randomBox.getAttribute('data-index');
+				
+				// Set the revealed letter
+				randomBox.textContent = puzzles[currentClueIndex].answer[index];
+				
+				// Apply styling and lock the revealed letter
+				randomBox.classList.add('filled', 'highlight', 'revealed'); // Add revealed class
+				randomBox.classList.remove('active'); // Deactivate the box
+
+				activateNextBox();
+				updateParScale('filled');
+			}
+		}
+		function checkAnswer() {
+			console.log("Checking answer...");
+			console.log("Game Started:", gameStarted); // Debug game start state
+
+			if (!gameStarted) {
+				console.log("Game has not started yet. Ignoring checkAnswer call.");
+				return; // Ignore if the game hasn't started
+			}
+
+			const userAnswer = [...document.querySelectorAll('.letter-box')]
+				.map(box => box.textContent.trim().toUpperCase()) // Normalize to uppercase
+				.join('');
+			const currentClue = puzzles[currentClueIndex];
+
+			console.log("User Answer:", userAnswer);
+			console.log("Correct Answer:", currentClue.answer);
+
+			if (userAnswer.length !== currentClue.answer.length) {
+				console.log("Incorrect: User answer length does not match correct answer length.");
+				showMessage("Keep trying! Your answer is incomplete.");
+				return;
+			}
+
+			if (userAnswer === currentClue.answer.toUpperCase()) {
+				console.log("Answer is Correct");
+				messageBox.innerHTML = `<span id="messageText">Look at you Chief Inspector!! \n <br /> </span><button onclick="loadNextPuzzle()">Next Minny Crippy</button>`;				
+				messageBox.classList.add('active');
+			} else {
+				console.log("Answer is Incorrect");
+				showMessage('Keep trying stupid goose!!');
+			}
+		}
+
+
+        function updateParScale(type) {
+            const circles = document.querySelectorAll('.circle');
+
+            if (type === 'hint') {
+                const hintCircle = document.querySelector('.circle:not(.filled):not(.hint)');
+                if (hintCircle) {
+                    hintCircle.classList.add('hint');
+                    parProgress++;
+                }
+            } else if (type === 'filled') {
+                const filledCircle = document.querySelector('.circle:not(.filled):not(.hint)');
+                if (filledCircle) {
+                    filledCircle.classList.add('filled');
+                    parProgress++;
+                }
+            }
+        }
+
+        document.addEventListener('keydown', (event) => {
+            const key = event.key.toLowerCase();
+            if (/^[a-z]$/.test(key)) {
+                handleKeyPress(key);
+            } else if (event.key === 'Backspace') {
+                handleBackspace();
+            } else if (event.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+    </script>
+</body>
+</html>
+
