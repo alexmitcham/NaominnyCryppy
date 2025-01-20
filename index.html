@@ -507,14 +507,15 @@
 			}
 		}
 
+
 		function activateNextBox() {
-			const nextBox = document.querySelector('.letter-box:not(.highlight):not(.filled)');
+			const nextBox = document.querySelector('.letter-box:not(.filled):not(.highlight)');
 			if (nextBox) {
+				document.querySelectorAll('.letter-box').forEach(b => b.classList.remove('active'));
 				nextBox.classList.add('active');
-				nextBox.focus(); // Focus the next box
+				nextBox.focus(); // Automatically focus the next box
 			}
 		}
-
 
         function showHint() {
             if (!hintUsed) {
