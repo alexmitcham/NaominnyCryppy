@@ -413,24 +413,39 @@
 				if (i === 0) box.classList.add('active');
 				box.setAttribute('data-index', i);
 				box.setAttribute('tabindex', '0'); // Make the box focusable
-				box.textContent = ''; // Clear text content
 
-				// Add a click listener to focus the clicked box
+				// Add an input element inside the box
+				const input = document.createElement('input');
+				input.type = 'text';
+				input.maxLength = 1; // Allow only one letter
+				input.style.position = 'absolute'; // Position it out of view
+				input.style.opacity = '0';
+				input.style.width = '1px';
+				input.style.height = '1px';
+				input.addEventListener('input', () => {
+					// Sync input value with the visible box
+					box.textContent = input.value.toUpperCase();
+					box.classList.add('filled');
+					box.classList.remove('active');
+					activateNextBox();
+				});
+
+				box.appendChild(input); // Add the input to the box
 				box.addEventListener('click', () => {
 					document.querySelectorAll('.letter-box').forEach(b => b.classList.remove('active'));
 					box.classList.add('active');
-					box.focus(); // Focus the clicked box
+					input.focus(); // Focus the hidden input on click
 				});
 
 				answerBox.appendChild(box);
 			}
-			
+
 			// Focus the first letter box after generation
 			const firstBox = document.querySelector('.letter-box');
 			if (firstBox) {
-				firstBox.focus();
+				firstBox.classList.add('active');
+				firstBox.querySelector('input').focus();
 			}
-			console.log("Letter boxes initialized.");
 
 			// Generate par circles
 			parScale.innerHTML = ''; // Clear previous circles
@@ -494,16 +509,12 @@
 			const filledBoxes = [...document.querySelectorAll('.letter-box.filled:not(.revealed)')];
 			if (filledBoxes.length > 0) {
 				const lastFilledBox = filledBoxes[filledBoxes.length - 1];
-				console.log(`Clearing letter at index ${lastFilledBox.getAttribute('data-index')}`);
-				lastFilledBox.textContent = ''; // Clear the text
+				const input = lastFilledBox.querySelector('input'); // Access the hidden input
+				input.value = ''; // Clear the hidden input
+				lastFilledBox.textContent = ''; // Clear the visible box
 				lastFilledBox.classList.remove('filled');
 				lastFilledBox.classList.add('active');
-
-				// Ensure only one active box is highlighted at a time
-				const otherActiveBox = document.querySelector('.letter-box.active:not([data-index="' + lastFilledBox.getAttribute('data-index') + '"])');
-				if (otherActiveBox) {
-					otherActiveBox.classList.remove('active');
-				}
+				input.focus(); // Refocus the hidden input
 			}
 		}
 
@@ -513,7 +524,7 @@
 			if (nextBox) {
 				document.querySelectorAll('.letter-box').forEach(b => b.classList.remove('active'));
 				nextBox.classList.add('active');
-				nextBox.focus(); // Automatically focus the next box
+				nextBox.querySelector('input').focus(); // Focus the hidden input
 			}
 		}
 
