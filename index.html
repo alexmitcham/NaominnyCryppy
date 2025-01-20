@@ -422,19 +422,24 @@
 				input.style.opacity = '0';
 				input.style.width = '1px';
 				input.style.height = '1px';
-				input.addEventListener('input', () => {
-					// Sync input value with the visible box
-					box.textContent = input.value.toUpperCase();
-					box.classList.add('filled');
-					box.classList.remove('active');
-					activateNextBox();
+				input.addEventListener('input', (event) => {
+					const value = event.target.value.toUpperCase(); // Get the typed value
+					if (value.length > 0) {
+						box.textContent = value; // Update the visible letter box
+						box.classList.add('filled');
+						box.classList.remove('active');
+						input.value = ''; // Clear the hidden input to avoid retyping
+						activateNextBox(); // Move to the next box
+					}
 				});
 
 				box.appendChild(input); // Add the input to the box
 				box.addEventListener('click', () => {
 					document.querySelectorAll('.letter-box').forEach(b => b.classList.remove('active'));
 					box.classList.add('active');
-					input.focus(); // Focus the hidden input on click
+					const input = box.querySelector('input');
+					input.focus(); // Focus the input to show the keyboard
+					input.value = ''; // Clear the input so it only listens for new input
 				});
 
 				answerBox.appendChild(box);
@@ -506,15 +511,13 @@
 
 
 		function handleBackspace() {
-			const filledBoxes = [...document.querySelectorAll('.letter-box.filled:not(.revealed)')];
-			if (filledBoxes.length > 0) {
-				const lastFilledBox = filledBoxes[filledBoxes.length - 1];
-				const input = lastFilledBox.querySelector('input'); // Access the hidden input
+			const activeBox = document.querySelector('.letter-box.active');
+			if (activeBox) {
+				const input = activeBox.querySelector('input');
+				activeBox.textContent = ''; // Clear the visible letter
+				activeBox.classList.remove('filled');
 				input.value = ''; // Clear the hidden input
-				lastFilledBox.textContent = ''; // Clear the visible box
-				lastFilledBox.classList.remove('filled');
-				lastFilledBox.classList.add('active');
-				input.focus(); // Refocus the hidden input
+				input.focus(); // Keep the input focused for further typing
 			}
 		}
 
@@ -524,7 +527,14 @@
 			if (nextBox) {
 				document.querySelectorAll('.letter-box').forEach(b => b.classList.remove('active'));
 				nextBox.classList.add('active');
-				nextBox.querySelector('input').focus(); // Focus the hidden input
+				nextBox.querySelector('input').focus(); // Focus the next hidden input
+			} else {
+				// If all boxes are filled, keep focus on the last one
+				const lastBox = document.querySelector('.letter-box:last-child');
+				if (lastBox) {
+					lastBox.classList.add('active');
+					lastBox.querySelector('input').focus(); // Focus the last box's input
+				}
 			}
 		}
 
