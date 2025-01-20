@@ -428,7 +428,7 @@
 						box.textContent = value; // Update the visible letter box
 						box.classList.add('filled');
 						box.classList.remove('active');
-						input.value = ''; // Clear the hidden input to avoid retyping
+						input.value = ''; // Clear the input value to avoid re-triggering
 						activateNextBox(); // Move to the next box
 					}
 				});
@@ -439,7 +439,6 @@
 					box.classList.add('active');
 					const input = box.querySelector('input');
 					input.focus(); // Focus the input to show the keyboard
-					input.value = ''; // Clear the input so it only listens for new input
 				});
 
 				answerBox.appendChild(box);
@@ -509,7 +508,6 @@
 			}
 		}
 
-
 		function handleBackspace() {
 			const activeBox = document.querySelector('.letter-box.active');
 			if (activeBox) {
@@ -517,10 +515,9 @@
 				activeBox.textContent = ''; // Clear the visible letter
 				activeBox.classList.remove('filled');
 				input.value = ''; // Clear the hidden input
-				input.focus(); // Keep the input focused for further typing
+				input.focus(); // Refocus the input for further typing
 			}
 		}
-
 
 		function activateNextBox() {
 			const nextBox = document.querySelector('.letter-box:not(.filled):not(.highlight)');
@@ -529,7 +526,7 @@
 				nextBox.classList.add('active');
 				nextBox.querySelector('input').focus(); // Focus the next hidden input
 			} else {
-				// If all boxes are filled, keep focus on the last one
+				// If all boxes are filled, keep the keyboard open by focusing the last box
 				const lastBox = document.querySelector('.letter-box:last-child');
 				if (lastBox) {
 					lastBox.classList.add('active');
