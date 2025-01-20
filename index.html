@@ -412,10 +412,24 @@
 				box.classList.add('letter-box');
 				if (i === 0) box.classList.add('active');
 				box.setAttribute('data-index', i);
+				box.setAttribute('tabindex', '0'); // Make the box focusable
 				box.textContent = ''; // Clear text content
+
+				// Add a click listener to focus the clicked box
+				box.addEventListener('click', () => {
+					document.querySelectorAll('.letter-box').forEach(b => b.classList.remove('active'));
+					box.classList.add('active');
+					box.focus(); // Focus the clicked box
+				});
+
 				answerBox.appendChild(box);
 			}
-
+			
+			// Focus the first letter box after generation
+			const firstBox = document.querySelector('.letter-box');
+			if (firstBox) {
+				firstBox.focus();
+			}
 			console.log("Letter boxes initialized.");
 
 			// Generate par circles
