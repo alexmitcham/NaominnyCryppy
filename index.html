@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Naominny Cryppy</title>
-    <link rel="icon" href="N.png" type="image/x-icon">
+	<link rel="icon" href="N.png" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sansita:ital,wght@0,100;0,900;1,900&display=swap" rel="stylesheet">
@@ -196,15 +196,8 @@
     </div>
 
     <script>
-        const password = "theclue";
+        const password = "thefirstclue";
         const puzzles = [
-            {
-                clueText: "dealt a soft 12 with partial credit",
-                definition: "Close friend",
-                answer: "AADIT",
-                par: 3,
-                definitionFirst: true
-            },
 			{
 				clueText: "Starting to see only New York",
 				definition: "work",
@@ -262,13 +255,6 @@
 				definitionFirst: false
 			},
 			{
-				clueText: "has two eyes and a scruffy chubby penis",
-				definition: "Talent",
-				answer: "DOECHII",
-				par: 4,
-				definitionFirst: true
-			},
-			{
 				clueText: "Mike takes a sec to mark the spot",
 				definition: "Festive",
 				answer: "XMAS",
@@ -287,13 +273,6 @@
 				definition: "Posh mate who's usually right wing?",
 				answer: "BECKHAM",
 				par: 3,
-				definitionFirst: true
-			},
-			{
-				clueText: "Warren wears bangles backwards",
-				definition: "Mr",
-				answer: "BOJANGLES",
-				par: 4,
 				definitionFirst: true
 			},
 			{
@@ -318,27 +297,6 @@
 				definitionFirst: true
 			},
 			{
-				clueText: "My amigo Osewald houses",
-				definition: "someone silly",
-				answer: "GOOSE",
-				par: 2,
-				definitionFirst: false
-			},
-			{
-				clueText: "says it beats paper",
-				definition: "Rock babe",
-				answer: "SZA",
-				par: 3,
-				definitionFirst: true
-			},
-			{
-				clueText: "you inside me - know why?",
-				definition: "It's a special treat,",
-				answer: "ANAL",
-				par: 5,
-				definitionFirst: true
-			},
-			{
 				clueText: "Emo once buried a",
 				definition: "body in the darkness",
 				answer: "MOON",
@@ -353,13 +311,6 @@
 				definitionFirst: false
 			},
 			{
-				clueText: "being from New Zealand, Joe, loses regularly",
-				definition: "Heavenly",
-				answer: "ANGELS",
-				par: 4,
-				definitionFirst: true
-			},
-			{
 				clueText: "Burger chain zips waist",
 				definition: "band?",
 				answer: "MCFLY",
@@ -367,7 +318,7 @@
 				definitionFirst: false
 			},
 			{
-				clueText: "North French friend has an orgasm",
+				clueText: "North French friend has a donut",
 				definition: "Perfect",
 				answer: "NAOMI",
 				par: 4,
@@ -567,6 +518,7 @@
 				randomBox.textContent = puzzles[currentClueIndex].answer[index];
 				
 				// Apply styling and lock the revealed letter
+				// naomi hey
 				randomBox.classList.add('filled', 'highlight', 'revealed'); // Add revealed class
 				randomBox.classList.remove('active'); // Deactivate the box
 
@@ -640,4 +592,3 @@
     </script>
 </body>
 </html>
-
